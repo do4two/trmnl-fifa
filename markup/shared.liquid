@@ -11,10 +11,18 @@
 <style>
   :root { --line: 2px solid #000; }
 
+  /* reset so the screen can anchor its height to the device viewport, not to a
+     parent height chain (which collapses in the real TRMNL render) */
+  html, body { margin: 0; padding: 0; height: 100%; }
+
   .wm { font-family: 'Inter', Helvetica, Arial, sans-serif; color: #000; }
 
   /* own the screen layout (we deliberately skip the public `view` wrapper, so
-     plugins.css title_bar/screen positioning does not apply here) */
+     plugins.css title_bar/screen positioning does not apply here).
+     height:100% needs an anchored parent chain — the html/body reset above
+     provides it on the real device (where the screen sits directly under body),
+     while the local preview supplies a fixed-size .device parent. Without the
+     reset the chain collapses on-device and the group tables get clipped. */
   .wm.screen { display: flex; flex-direction: column; width: 100%; height: 100%;
                box-sizing: border-box; padding: 6px; gap: 6px; }
   .wm .title_bar {
