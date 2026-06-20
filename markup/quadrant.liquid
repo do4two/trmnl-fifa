@@ -4,7 +4,7 @@
   (set it via a TRMNL custom form field; falls back to the value baked into
   the polled payload, then to 'A').
 {% endcomment %}
-<div class="screen wm d-quad">
+<div class="screen wm d-quad wm-quad">
   {% assign fav = favorite_group | default: 'A' | upcase %}
   {% for g in groups %}{% if g.name == fav %}
     <div class="grp">

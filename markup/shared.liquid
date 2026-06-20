@@ -19,12 +19,16 @@
 
   /* own the screen layout (we deliberately skip the public `view` wrapper, so
      plugins.css title_bar/screen positioning does not apply here).
-     height:100% needs an anchored parent chain — the html/body reset above
-     provides it on the real device (where the screen sits directly under body),
-     while the local preview supplies a fixed-size .device parent. Without the
-     reset the chain collapses on-device and the group tables get clipped. */
-  .wm.screen { display: flex; flex-direction: column; width: 100%; height: 100%;
+     A percentage height needs an anchored parent chain, but TRMNL's real device
+     render inserts wrapper(s) without a fixed height, so 100% collapses there
+     and the group tables get clipped. We therefore pin an explicit device-pixel
+     height per layout (classes below) — independent of any parent. */
+  .wm.screen { display: flex; flex-direction: column; width: 100%; height: 480px;
                box-sizing: border-box; padding: 6px; gap: 6px; }
+  .wm.screen.wm-full { height: 480px; }   /* 800x480 full */
+  .wm.screen.wm-hh   { height: 240px; }   /* 800x240 half horizontal */
+  .wm.screen.wm-hv   { height: 480px; }   /* 400x480 half vertical */
+  .wm.screen.wm-quad { height: 240px; }   /* 400x240 quadrant */
   .wm .title_bar {
     position: static; flex: 0 0 auto; height: auto;
     border-top: var(--line); padding: 4px 2px 0;
