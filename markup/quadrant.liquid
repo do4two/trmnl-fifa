@@ -1,0 +1,35 @@
+{% comment %}
+  QUADRANT (400x240): ONE configurable favourite group, full detail.
+  The group shown is controlled by the merge variable `favorite_group`
+  (set it via a TRMNL custom form field; falls back to the value baked into
+  the polled payload, then to 'A').
+{% endcomment %}
+<div class="screen wm d-quad">
+  {% assign fav = favorite_group | default: 'A' | upcase %}
+  {% for g in groups %}{% if g.name == fav %}
+    <div class="grp">
+      <div class="grp__hd"><span class="ball">●</span><span>GRUPPE {{ g.name }}</span>
+        <span class="grp__meta">WM 2026</span>
+      </div>
+      <table class="tbl">
+        <colgroup>
+          <col style="width:8%"><col style="width:34%"><col style="width:10%"><col style="width:8%">
+          <col style="width:8%"><col style="width:8%"><col style="width:12%"><col style="width:12%">
+        </colgroup>
+        <thead>
+          <tr><th></th><th class="team">Team</th><th>Sp</th><th>S</th><th>U</th><th>N</th><th>Dif</th><th>Pkt</th></tr>
+        </thead>
+        <tbody>
+          {% for t in g.teams %}
+          <tr class="{% if t.winner %}is-win {% endif %}{% if t.qualified %}is-q {% endif %}{% if t.eliminated %}is-out{% endif %}">
+            <td class="mk">{% if t.winner %}▲{% elsif t.qualified %}●{% elsif t.eliminated %}✗{% endif %}</td>
+            <td class="team">{{ t.code }}</td>
+            <td>{{ t.p }}</td><td>{{ t.w }}</td><td>{{ t.d }}</td><td>{{ t.l }}</td>
+            <td>{{ t.gd_str }}</td><td class="pts">{{ t.pts }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}{% endfor %}
+</div>

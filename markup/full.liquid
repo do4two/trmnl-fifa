@@ -1,0 +1,36 @@
+{% comment %} FULL layout (800x480): all 12 groups, 4 cols x 3 rows. {% endcomment %}
+<div class="screen wm d-full">
+  <div class="wm-grid wm-grid--12">
+    {% for g in groups %}
+    <div class="grp">
+      <div class="grp__hd"><span class="ball">●</span><span>GROUP {{ g.name }}</span></div>
+      <table class="tbl">
+        <colgroup>
+          <col style="width:9%"><col style="width:37%"><col style="width:9%"><col style="width:9%">
+          <col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:9%">
+        </colgroup>
+        <thead>
+          <tr><th></th><th class="team">Team</th><th>Sp</th><th>S</th><th>U</th><th>N</th><th>Dif</th><th>Pkt</th></tr>
+        </thead>
+        <tbody>
+          {% for t in g.teams %}
+          <tr class="{% if t.winner %}is-win {% endif %}{% if t.qualified %}is-q {% endif %}{% if t.eliminated %}is-out{% endif %}">
+            <td class="mk">{% if t.winner %}▲{% elsif t.qualified %}●{% elsif t.eliminated %}✗{% endif %}</td>
+            <td class="team">{{ t.code }}</td>
+            <td>{{ t.p }}</td><td>{{ t.w }}</td><td>{{ t.d }}</td><td>{{ t.l }}</td>
+            <td>{{ t.gd_str }}</td><td class="pts">{{ t.pts }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="title_bar">
+    <span class="title">WM 2026 · Gruppen</span>
+    <span class="instance">
+      <span class="wm-legend"><span>▲ Gruppensieg</span><span>● Achtelfinale sicher</span><span><s>ausgeschieden</s></span></span>
+    </span>
+  </div>
+</div>

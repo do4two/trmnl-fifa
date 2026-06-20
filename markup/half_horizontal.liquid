@@ -1,0 +1,29 @@
+{% comment %} HALF HORIZONTAL (800x240): 6 groups (A-F), 3 cols x 2 rows. {% endcomment %}
+<div class="screen wm d-half">
+  <div class="wm-grid wm-grid--6h">
+    {% for g in groups %}{% if forloop.index <= 6 %}
+    <div class="grp">
+      <div class="grp__hd"><span class="ball">●</span><span>GROUP {{ g.name }}</span></div>
+      <table class="tbl">
+        <colgroup>
+          <col style="width:9%"><col style="width:43%"><col style="width:12%"><col style="width:18%"><col style="width:18%">
+        </colgroup>
+        <thead><tr><th></th><th class="team">Team</th><th>Sp</th><th>Dif</th><th>Pkt</th></tr></thead>
+        <tbody>
+          {% for t in g.teams %}
+          <tr class="{% if t.winner %}is-win {% endif %}{% if t.qualified %}is-q {% endif %}{% if t.eliminated %}is-out{% endif %}">
+            <td class="mk">{% if t.winner %}▲{% elsif t.qualified %}●{% elsif t.eliminated %}✗{% endif %}</td>
+            <td class="team">{{ t.code }}</td>
+            <td>{{ t.p }}</td><td>{{ t.gd_str }}</td><td class="pts">{{ t.pts }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}{% endfor %}
+  </div>
+  <div class="title_bar">
+    <span class="title">WM 2026 · Gruppen A–F</span>
+    <span class="instance"><span class="wm-legend"><span>▲ Sieger</span><span>● sicher</span><span><s>raus</s></span></span></span>
+  </div>
+</div>
