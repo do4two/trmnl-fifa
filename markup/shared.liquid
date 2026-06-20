@@ -37,12 +37,15 @@
   .wm .title_bar .title { font-weight: 700; font-size: 13px; }
 
   /* ---- group grid -------------------------------------------------------- */
+  /* min-height is pinned per layout directly on the grid (an inner div that is
+     never hand-edited), so the tables fill even if the root .wm.screen height
+     fails to apply — defence against a damaged root class / parent collapse. */
   .wm-grid { display: grid; gap: 6px; width: 100%; box-sizing: border-box;
              flex: 1 1 auto; min-height: 0; }
-  .wm-grid--12 { grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr); }
-  .wm-grid--6h { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); }
-  .wm-grid--6v { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); }
-  .wm-grid--1  { grid-template-columns: 1fr; }
+  .wm-grid--12 { grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr); min-height: 432px; }
+  .wm-grid--6h { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); min-height: 222px; }
+  .wm-grid--6v { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); min-height: 462px; }
+  .wm-grid--1  { grid-template-columns: 1fr; min-height: 222px; }
 
   /* ---- one group "scoreboard" ------------------------------------------- */
   .grp { border: var(--line); display: flex; flex-direction: column; overflow: hidden; }
