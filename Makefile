@@ -1,8 +1,11 @@
 PY=.venv/bin/python
 
-.PHONY: setup build build-offline preview test all
+.PHONY: setup build build-offline preview test check all
 setup:
 	python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+
+check:          ## verify markup follows the TRMNL X structure
+	$(PY) tests/check_structure.py
 
 build:          ## fetch live openfootball data -> output/trmnl_data.json
 	$(PY) src/build_data.py
@@ -16,4 +19,4 @@ preview:        ## render the 4 layouts to preview/*.html
 test:
 	$(PY) tests/test_standings.py
 
-all: test build preview
+all: check test build preview

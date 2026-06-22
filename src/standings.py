@@ -62,11 +62,29 @@ def group_matches(matches, letter):
     return [m for m in matches if group_letter(m) == letter]
 
 
+def iso2_from_flag(flag):
+    """Derive the ISO 3166-1 alpha-2 code (for flagcdn image URLs) from an
+    emoji flag. A national flag emoji is two Regional Indicator symbols, so
+    🇲🇽 -> 'mx'. England/Scotland/Wales use subdivision flags (🏴 + tag letters,
+    e.g. 'gbeng') -> 'gb-eng', the form flagcdn expects. Returns '' if unknown."""
+    if not flag:
+        return ""
+    ri = [ord(c) - 0x1F1E6 + 97 for c in flag if 0x1F1E6 <= ord(c) <= 0x1F1FF]
+    if len(ri) == 2:
+        return chr(ri[0]) + chr(ri[1])
+    tags = [chr(ord(c) - 0xE0000) for c in flag if 0xE0061 <= ord(c) <= 0xE007A]
+    if len(tags) >= 4:  # e.g. ['g','b','e','n','g'] -> 'gb-eng'
+        s = "".join(tags)
+        return s[:2] + "-" + s[2:]
+    return ""
+
+
 def _blank_row(team):
     return {
         "name": team["name"],
         "code": team.get("fifa_code") or team["name"][:3].upper(),
         "flag": team.get("flag_icon") or "",
+        "iso2": iso2_from_flag(team.get("flag_icon") or ""),
         "p": 0, "w": 0, "d": 0, "l": 0,
         "gf": 0, "ga": 0, "gd": 0, "pts": 0,
     }
@@ -279,6 +297,7 @@ def build_standings(teams, matches):
                 "name": r["name"],
                 "code": r["code"],
                 "flag": r["flag"],
+                "iso2": r["iso2"],
                 "p": r["p"], "w": r["w"], "d": r["d"], "l": r["l"],
                 "gf": r["gf"], "ga": r["ga"],
                 "gd": r["gd"],

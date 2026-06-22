@@ -3,71 +3,92 @@
   TRMNL prepends this to every layout before rendering, so the styles below are
   available to full / half_horizontal / half_vertical / quadrant.
 
-  Design goals: 1-bit (pure black/white) e-ink, 800x480, high contrast, a
-  "stadium scoreboard" football feel. No greyscale reliance — emphasis is done
-  with bold weight and solid black bars; elimination uses strike-through (solid
-  black lines), never grey fills.
+  STRUCTURE (verified on TRMNL X — see TRMNL_X_Start/readmefirst.md):
+  TRMNL itself supplies `.screen` and `.view`. The plugin must start with exactly
+  one `.layout layout--col` and a single inner canvas (`.x-canvas`). We do NOT
+  create our own `.screen`/`.view` and do NOT pin pixel heights — those bypass or
+  double the device scaling and collapse the height in the real device render.
+  The `.trmnl .layout > .x-canvas` rule makes our canvas fill the framework's
+  layout slot; everything inside sizes against it with container-query units.
+
+  Design goals: 1-bit (pure black/white) e-ink, high contrast, a "stadium
+  scoreboard" football feel. No greyscale reliance — emphasis is bold weight and
+  solid black bars; elimination uses strike-through, never grey fills.
+
+  Bump --starter-revision whenever this file changes (visible copy/cache test in
+  the TRMNL editor).
 {% endcomment %}
 <style>
   :root { --line: 2px solid #000; }
 
-  /* reset so the screen can anchor its height to the device viewport, not to a
-     parent height chain (which collapses in the real TRMNL render) */
-  html, body { margin: 0; padding: 0; height: 100%; }
-
-  .wm { font-family: 'Inter', Helvetica, Arial, sans-serif; color: #000; }
-
-  /* own the screen layout (we deliberately skip the public `view` wrapper, so
-     plugins.css title_bar/screen positioning does not apply here).
-     A percentage height needs an anchored parent chain, but TRMNL's real device
-     render inserts wrapper(s) without a fixed height, so 100% collapses there
-     and the group tables get clipped. We therefore pin an explicit device-pixel
-     height per layout (classes below) — independent of any parent. */
-  /* !important beats TRMNL plugins.css `.screen` rules that otherwise win in the
-     real (non-editor) render pipeline and collapse the height. */
-  .wm.screen { display: flex; flex-direction: column; width: 100%; height: 480px !important;
-               box-sizing: border-box; padding: 6px; gap: 6px; }
-  .wm.screen.wm-full { height: 480px !important; }   /* 800x480 full */
-  .wm.screen.wm-hh   { height: 240px !important; }   /* 800x240 half horizontal */
-  .wm.screen.wm-hv   { height: 480px !important; }   /* 400x480 half vertical */
-  .wm.screen.wm-quad { height: 240px !important; }   /* 400x240 quadrant */
-  .wm .title_bar {
-    position: static; flex: 0 0 auto; height: auto;
-    border-top: var(--line); padding: 4px 2px 0;
-    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  /* ---- canvas: fills the framework-provided layout slot ------------------ */
+  .x-canvas {
+    --starter-revision: 20260622-2;
+    box-sizing: border-box;
+    display: flex;
+    flex: 1 1 100%;
+    flex-direction: column;
+    align-self: stretch;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    gap: 1cqh;
+    padding: 1.2cqw;
+    overflow: hidden;
+    background: #fff;
+    color: #000;
+    font-family: 'Inter', Helvetica, Arial, sans-serif;
   }
-  .wm .title_bar .title { font-weight: 700; font-size: 13px; }
 
-  /* ---- group grid -------------------------------------------------------- */
-  /* min-height is pinned per layout directly on the grid (an inner div that is
-     never hand-edited), so the tables fill even if the root .wm.screen height
-     fails to apply — defence against a damaged root class / parent collapse. */
-  .wm-grid { display: grid; gap: 6px; width: 100%; box-sizing: border-box;
-             flex: 1 1 auto; min-height: 0; }
-  .wm-grid--12 { grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr); min-height: 432px !important; }
-  .wm-grid--6h { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); min-height: 222px !important; }
-  .wm-grid--6v { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); min-height: 462px !important; }
-  .wm-grid--1  { grid-template-columns: 1fr; min-height: 222px !important; }
+  /* high specificity so the canvas truly fills the TRMNL layout slot in the
+     real (non-editor) render pipeline */
+  .trmnl .layout > .x-canvas {
+    flex: 1 1 100% !important;
+    align-self: stretch !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+  }
+
+  .x-canvas *, .x-canvas *::before, .x-canvas *::after { box-sizing: border-box; }
+
+  /* ---- group grid (fills the space above the footer) --------------------- */
+  .wm-grid { display: grid; gap: 1cqw; width: 100%; flex: 1 1 auto; min-height: 0; }
+  .wm-grid--12 { grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr); }
+  .wm-grid--6h { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); }
+  .wm-grid--6v { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); }
+  .wm-grid--1  { grid-template-columns: 1fr; grid-template-rows: 1fr; }
 
   /* ---- one group "scoreboard" ------------------------------------------- */
-  .grp { border: var(--line); display: flex; flex-direction: column; overflow: hidden; }
+  .grp { border: var(--line); display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
   .grp__hd {
     background: #000; color: #fff; font-weight: 700; letter-spacing: .04em;
-    display: flex; align-items: center; gap: 5px; padding: 2px 6px;
+    display: flex; align-items: center; gap: 5px; padding: 0.4cqh 1cqw; flex: 0 0 auto;
   }
   .grp__hd .ball { font-weight: 700; }
-  .grp__hd .grp__meta { margin-left: auto; font-weight: 400; opacity: 1; }
+  .grp__hd .grp__meta { margin-left: auto; font-weight: 400; }
 
-  table.tbl { width: 100%; border-collapse: collapse; table-layout: fixed; }
-  .tbl th, .tbl td { padding: 1px 2px; text-align: center; line-height: 1.25; }
+  table.tbl { width: 100%; border-collapse: collapse; table-layout: fixed; flex: 1 1 auto; }
+  .tbl th, .tbl td { padding: 0.2cqh 2px; text-align: center; line-height: 1.2; }
   .tbl th { font-weight: 600; border-bottom: var(--line); }
   .tbl td { border-bottom: 1px solid #000; }
   .tbl tr:last-child td { border-bottom: none; }
   .tbl .team { text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .tbl .pts { font-weight: 700; }
 
+  /* country flag next to the code; sized in em so it tracks the density tier.
+     grayscale+contrast makes the e-ink dithering predictable (and mirrors the
+     device look in the desktop preview, where flags are otherwise in colour). */
+  .flag {
+    height: 1.25em; width: auto; vertical-align: -0.22em; margin-right: 0.4em;
+    border: 1px solid #000; object-fit: cover;
+    filter: grayscale(1) contrast(1.15);
+  }
+
   /* marker column (winner triangle / qualified dot) */
-  .mk { width: 1.1em; text-align: center; font-weight: 700; }
+  .mk { text-align: center; font-weight: 700; }
 
   /* qualified (guaranteed top-2) -> bold whole row */
   tr.is-q td { font-weight: 700; }
@@ -77,18 +98,22 @@
   tr.is-out td { text-decoration: line-through; font-weight: 400; }
   tr.is-out td.mk { text-decoration: none; }
 
-  /* density tiers ---------------------------------------------------------- */
-  .d-full   .grp__hd { font-size: 12px; }
-  .d-full   .tbl     { font-size: 10px; }
-  .d-half   .grp__hd { font-size: 11px; padding: 1px 5px; }
-  .d-half   .tbl     { font-size: 11px; }
-  .d-half   .tbl th, .d-half .tbl td { padding: 0 2px; line-height: 1.12; }
-  .d-quad   .grp__hd { font-size: 18px; padding: 4px 8px; }
-  .d-quad   .tbl     { font-size: 16px; }
-  .d-quad   .tbl th, .d-quad .tbl td { padding: 4px 4px; }
+  /* density tiers — clamp()+cqw so text scales with the actual view slot
+     (full vs. half vs. quadrant/mashup) instead of a fixed pixel guess ----- */
+  .d-full .grp__hd { font-size: clamp(11px, 1.4cqw, 24px); }
+  .d-full .tbl     { font-size: clamp(9px, 1.15cqw, 20px); }
+  .d-half .grp__hd { font-size: clamp(11px, 1.7cqw, 24px); }
+  .d-half .tbl     { font-size: clamp(10px, 1.5cqw, 22px); }
+  .d-quad .grp__hd { font-size: clamp(14px, 4cqw, 34px); }
+  .d-quad .tbl     { font-size: clamp(13px, 3.4cqw, 30px); }
 
-  /* legend / footer cues */
-  .wm-legend { display: flex; gap: 14px; align-items: center; font-size: 11px; }
-  .wm-legend b { font-weight: 700; }
+  /* ---- footer / legend (own element; we do NOT use plugins.css title_bar) */
+  .wm-foot {
+    flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between;
+    gap: 1cqw; border-top: var(--line); padding-top: 0.6cqh;
+    font-size: clamp(10px, 1.25cqw, 18px);
+  }
+  .wm-foot .wm-title { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .wm-legend { display: flex; gap: 1.2cqw; align-items: center; white-space: nowrap; }
   .wm-legend s { text-decoration: line-through; }
 </style>
